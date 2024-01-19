@@ -1,76 +1,35 @@
 import os
 
 class Model:
-    def xWinner(self, map):
-        if ((map[0] == 'X' and map[1] == 'X' and map[2] == 'X') or
-                (map[3] == 'X' and map[4] == 'X' and map[5] == 'X') or
-                (map[6] == 'X' and map[7] == 'X' and map[8] == 'X') or
-                (map[3] == 'X' and map[0] == 'X' and map[6] == 'X') or
-                (map[1] == 'X' and map[4] == 'X' and map[7] == 'X') or
-                (map[3] == 'X' and map[5] == 'X' and map[8] == 'X') or
-                (map[0] == 'X' and map[4] == 'X' and map[8] == 'X') or
-                (map[2] == 'X' and map[4] == 'X' and map[6] == 'X')):
+    def CheckVictory(self, map, symbol):
+        if ((map[0] == symbol and map[1] == symbol and map[2] == symbol) or
+                (map[3] == symbol and map[4] == symbol and map[5] == symbol) or
+                (map[6] == symbol and map[7] == symbol and map[8] == symbol) or
+                (map[3] == symbol and map[0] == symbol and map[6] == symbol) or
+                (map[1] == symbol and map[4] == symbol and map[7] == symbol) or
+                (map[3] == symbol and map[5] == symbol and map[8] == symbol) or
+                (map[0] == symbol and map[4] == symbol and map[8] == symbol) or
+                (map[2] == symbol and map[4] == symbol and map[6] == symbol)):
             return True
         else:
             return False
 
-    def oWinner(self, map):
-        if ((map[0] == 'O' and map[1] == 'O' and map[2] == 'O') or
-                (map[3] == 'O' and map[4] == 'O' and map[5] == 'O') or
-                (map[6] == 'O' and map[7] == 'O' and map[8] == 'O') or
-                (map[3] == 'O' and map[0] == 'O' and map[6] == 'O') or
-                (map[1] == 'O' and map[4] == 'O' and map[7] == 'O') or
-                (map[3] == 'O' and map[5] == 'O' and map[8] == 'O') or
-                (map[0] == 'O' and map[4] == 'O' and map[8] == 'O') or
-                (map[2] == 'O' and map[4] == 'O' and map[6] == 'O')):
-            return True
-        else:
-            return False
 
-    def draw(self, map):
+    def CheckForDraw(self, map):
         if '-' not in map:
             return True
         else:
             return False
 
-    def playGame(self, player1, player2):
-        map = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
-        c = Controller()
-
-        while 1:
-            c.playerMove(player1, map, 'X')
-
-            if self.xWinner(map):
-                print(f"{player1} - winner")
-                break
-
-            if self.xWinner(map) == False and self.oWinner(map) == False and self.draw(map):
-                print('Draw')
-                break
-
-
-            c.playerMove(player2, map, 'O')
-
-            if self.oWinner(map):
-                print(f"{player2} - winner")
-                break
-
-            if self.xWinner(map) == False and self.oWinner(map) == False and self.draw(map):
-                print('Draw')
-                break
-            
-
-        c.newGame(player1, player2)
-
-
+    
 class View:
-    def printMap(self, map):
+    def PrintMap(self, map):
         print(" Game board:")
         print("|-" + map[0] + "-|-" + map[1] + "-|-" + map[2] + "-|")
         print("|-" + map[3] + "-|-" + map[4] + "-|-" + map[5] + "-|")
         print("|-" + map[6] + "-|-" + map[7] + "-|-" + map[8] + "-| \n")
 
-    def greeting(self):
+    def AskingPlayersNames(self):
         print("\nHello, dear friends")
         player1 = input("Player 1, please enter your name: ")
         player2 = input("Player 2, please enter your name: ")
@@ -83,20 +42,57 @@ class Controller:
         self.__v = View()
         self.__m = Model()
 
-    def playerMove(self, player_name, map, symbol):
+
+    #one players move with the correctness of field input
+    def PlayerMove(self, player_name, map, symbol):
         move = int(input(player_name + ", write the field number "))
 
         if (move < 1 or move > 9):
             move = int(input("The number must be between 1 and 9, enter again: "))
 
-        if (map[move - 1] == 'X' or map[move - 1] == 'O'):
+        #checking if the field is busy
+        if map[move - 1] != '-':
             move = int(input("This field is busy, enter again: "))
 
         map[move - 1] = symbol
 
-        self.__v.printMap(map)
+        self.__v.PrintMap(map)
 
-    def newGame(self, player1, player2):
+
+    #one players turn with checking for a victory and for a draw
+    def PlayerMoveAndCheckVictory(self, player_name, map, symbol):
+        self.PlayerMove(player_name, map, symbol)
+
+        if self.__m.CheckVictory(map, symbol):
+            print(f"{player_name} - winner")
+            return True
+
+        if self.__m.CheckVictory(map, symbol) == False and self.__m.CheckForDraw(map):
+                print('Draw')
+                return True
+        
+        return False
+
+
+    def PlayGame(self, player1, player2, symbol1 = 'X', symbol2 = 'O'):
+        map = ['-', '-', '-', '-', '-', '-', '-', '-', '-']
+
+        #cycle stop mark
+        break_sign = False
+
+        while not break_sign:
+            break_sign = self.PlayerMoveAndCheckVictory(player1, map, symbol1)
+
+            if break_sign:
+                break
+
+            break_sign = self.PlayerMoveAndCheckVictory(player2, map, symbol2)
+            
+
+        self.StartNewGame(player1, player2, symbol1, symbol2)
+
+
+    def StartNewGame(self, player1, player2, symbol1, symbol2):
        while 1:
             game_start = input("If you want to play more, enter +: ")
             os.system('cls')
@@ -104,10 +100,10 @@ class Controller:
                 print("Goodbye!\n")
                 return
 
-            self.__m.playGame(player1, player2)
+            self.PlayGame(player1, player2, symbol1, symbol2)
 
 
 v = View()
-m = Model()
-names = v.greeting()
-m.playGame(names[0], names[1])
+c = Controller()
+names = v.AskingPlayersNames()
+c.PlayGame(names[0], names[1])
