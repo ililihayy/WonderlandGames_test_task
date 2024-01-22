@@ -67,6 +67,7 @@ class Model:
         else:
             return False
 
+
     def CleanMapForNewGame(self, empty_cell_symbol):
         self.map = []
         for i in range(self.map_size * self.map_size):
@@ -90,6 +91,11 @@ class View:
         player2 = input("Player 2, please enter your name: ")
         print()
         return player1, player2
+
+    def AskingAboutCustomGame(self):
+        choice = input("If you want to create your map, enter '+': ")
+        if choice == '+':
+            return True
 
     def AskingMapDetails(self):
         print("\nPlease, enter map size. You can choose 3x3, 4x4, 5x5, 6x6, etc.")
@@ -171,8 +177,15 @@ class Controller:
 
 v = View()
 names = v.AskingPlayersNames()
-map_details = v.AskingMapDetails()
-print()
+player1,player2 = names[0], names[1]
 
-c = Controller(names[0], names[1], map_details[2], map_details[3], map_details[1], map_details[0])
+if v.AskingAboutCustomGame():
+    map_details = v.AskingMapDetails()
+    print()
+    map_size, empty_cell_symbol, symbol1, symbol2 = map_details[0], map_details[1], map_details[2], map_details[3]
+    c = Controller(player1,player2, symbol1, symbol2, empty_cell_symbol, map_size)
+
+else:
+    c = Controller(player1,player2)
+
 c.PlayGame()
