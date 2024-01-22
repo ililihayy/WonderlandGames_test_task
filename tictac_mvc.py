@@ -69,7 +69,7 @@ class Model:
 
     def CleanMapForNewGame(self, empty_cell_symbol):
         self.map = []
-        for i in range(9):
+        for i in range(self.map_size * self.map_size):
             self.map.append(empty_cell_symbol)
     
 class View:
@@ -103,7 +103,7 @@ class View:
 class Controller:
     def __init__(self, player1, player2, symbol1 = 'X', symbol2 = 'O', empty_cell_symbol = '-', map_size = 3):
         self.__v = View()
-        self.__m = Model(3, empty_cell_symbol)
+        self.__m = Model(map_size, empty_cell_symbol)
         self.player1 = player1
         self.player2 = player2
         self.empty_cell_symbol = empty_cell_symbol
@@ -114,8 +114,8 @@ class Controller:
     def PlayerMove(self, player_name, symbol):
         move = int(input(player_name + ", write the field number "))
 
-        if (move < 1 or move > 9):
-            move = int(input("The number must be between 1 and 9, enter again: "))
+        if (move < 1 or move > self.__m.map_size * self.__m.map_size):
+            move = int(input("The number must be between 1 and map size, enter again: "))
 
         #checking if the field is busy
         if self.__m.map[move - 1] != self.empty_cell_symbol:
