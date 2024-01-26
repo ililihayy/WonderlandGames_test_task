@@ -4,7 +4,6 @@ import math
 
 class Model:
     def __init__(self, map_size=3):
-        self.v = View()
         self.map_size = map_size
         self.map = []
         for i in range(map_size * map_size):
@@ -62,27 +61,10 @@ class Model:
 
 
 class View:
-    def __init__(self):
-        self.empty_cell = '-'
-        self.symbol1 = 'X'
-        self.symbol2 = 'O'
-
-    def PrintMap(self, map):
-        map_size = int(math.sqrt(len(map)))
-
-        print(" Game board:")
-        for i in range(map_size):
-            row_str = "|"
-            for j in range(map_size):
-                if map[i * map_size + j] == 0:
-                    row_str += "-" + self.empty_cell + "-|"
-                elif map[i * map_size + j] == 1:
-                    row_str += "-" + self.symbol1 + "-|"
-                elif map[i * map_size + j] == 2:
-                    row_str += "-" + self.symbol2 + "-|"
-                
-            print(row_str)
-        print()
+    def __init__(self, empty_cell = '-', symbol1 = 'X', symbol2 = 'O'):
+        self.empty_cell = empty_cell
+        self.symbol1 = symbol1
+        self.symbol2 = symbol2
 
     def AskingPlayersNames(self):
         print("\nHello, dear friends")
@@ -104,12 +86,30 @@ class View:
         self.symbol1 = input("please, enter symbol1 ")
         self.symbol2 = input("please, enter symbol2 ")
 
-        return map_size, self.empty_cell, self.symbol1, self.symbol2
+        return map_size
+    
+    def PrintMap(self, map, player1_id, player2_id):
+        map_size = int(math.sqrt(len(map)))
+
+        print(" Game board:")
+        for i in range(map_size):
+            row_str = "|"
+            for j in range(map_size):
+                if map[i * map_size + j] == 0:
+                    row_str += "-" + self.empty_cell + "-|"
+                elif map[i * map_size + j] == player1_id:
+                    row_str += "-" + self.symbol1 + "-|"
+                elif map[i * map_size + j] == player2_id:
+                    row_str += "-" + self.symbol2 + "-|"
+                
+            print(row_str)
+        print()
+
 
 
 class Controller:
-    def __init__(self, player1, player2,  map_size=3):
-        self.__v = View()
+    def __init__(self, player1, player2, class_View,  map_size=3):
+        self.__v = class_View
         self.__m = Model(map_size)
         self.player1 = player1
         self.player2 = player2
@@ -129,7 +129,7 @@ class Controller:
 
         self.__m.map[move - 1] = player_id
 
-        self.__v.PrintMap(self.__m.map)
+        self.__v.PrintMap(self.__m.map, self.player1_id, self.player2_id)
 
     # one players turn with checking for a victory and for a draw
     def PlayerMoveAndCheckVictory(self, player_name, player_id):
@@ -178,10 +178,9 @@ names = v.AskingPlayersNames()
 player1, player2 = names[0], names[1]
 
 if v.AskingAboutCustomGame():
-    map_details = v.AskingMapDetails()
     print()
-    map_size = map_details[0]
-    c = Controller(player1, player2, map_size)
+    map_size = v.AskingMapDetails()
+    c = Controller(player1, player2, v, map_size)
 
 else:
     c = Controller(player1, player2)
